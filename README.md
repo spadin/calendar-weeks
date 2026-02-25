@@ -2,6 +2,8 @@
 
 A minimal, single-page calendar showing week numbers for any year. Click or drag to highlight weeks. No dependencies, printable.
 
+**[Live demo](https://sa.ndropad.in/calendar-weeks/)**
+
 ## Features
 
 - Full-year calendar with week numbers
