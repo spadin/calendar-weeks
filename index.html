@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar Weeks — What Week Number Is It? | Week Numbers for Any Year</title>
+<meta name="description" content="Find the current week number at a glance. A full-year calendar showing week numbers for any year. Simple, fast, and printable.">
+<meta name="keywords" content="week number, calendar weeks, what week is it, week number calendar, current week number, week of the year, calendar with week numbers">
+<link rel="canonical" href="https://calendarweeks.com/">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="Calendar Weeks — What Week Number Is It?">
+<meta property="og:description" content="Find the current week number at a glance. A full-year calendar showing week numbers for any year. Simple, fast, and printable.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://calendarweeks.com/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Calendar Weeks — What Week Number Is It?">
+<meta name="twitter:description" content="Find the current week number at a glance. A full-year calendar showing week numbers for any year.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Calendar Weeks",
+  "description": "Find the current week number at a glance. A full-year calendar showing week numbers for any year. Simple, fast, and printable.",
+  "url": "https://calendarweeks.com/",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0" }
+}
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #fff;
+    color: #333;
+    padding: 1rem;
+  }
+
+  header, footer {
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  header h1 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  #current-week-banner {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+  }
+
+  footer {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #eee;
+    font-size: 0.8rem;
+    color: #888;
+  }
+
+  footer a { color: #555; }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 0.75rem 0;
+  }
+
+  .nav-bottom { margin-top: 0.25rem; }
+
+  .nav button {
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: #333;
+  }
+
+  .nav button:hover { background: #f5f5f5; }
+
+  .nav .year-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    min-width: 4rem;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .nav .year-title:hover { text-decoration: underline; }
+
+  .calendar {
+    display: grid;
+    grid-template-columns: auto repeat(7, 1fr) auto auto;
+    border-collapse: collapse;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .calendar .cell {
+    padding: 0.3rem 0.45rem;
+    text-align: center;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #eee;
+    min-width: 2.2rem;
+  }
+
+  .calendar .header {
+    font-weight: 600;
+    border-bottom: 2px solid #ccc;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 2;
+    padding: 0.4rem 0.45rem;
+  }
+
+  .calendar .week-num {
+    color: #999;
+    font-size: 0.75rem;
+    padding-right: 0.6rem;
+    text-align: right;
+    border-right: 1px solid #eee;
+  }
+
+  .calendar .outside { color: #ccc; }
+
+  .calendar .today {
+    background: #e8f0fe;
+    font-weight: 700;
+    border-radius: 3px;
+  }
+
+  .month-label {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.15rem 0.25rem;
+    border-left: 1px solid #eee;
+    white-space: nowrap;
+  }
+
+  .month-label.odd { grid-column: 9; }
+  .month-label.even { grid-column: 10; }
+
+  /* Header placeholders for month-label columns */
+  .month-header {
+    border-bottom: 2px solid #ccc;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 2;
+  }
+
+  @media print {
+    .nav, footer { display: none; }
+    #current-week-banner { display: none; }
+    body { padding: 0; }
+    .calendar .header { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1 id="page-title">Calendar Weeks <span id="title-year"></span></h1>
+  <p id="current-week-banner"></p>
+</header>
+
+<main>
+  <nav class="nav nav-top" aria-label="Year navigation">
+    <button id="prev-top" aria-label="Previous year">&larr; Prev</button>
+    <span class="year-title" id="year-top"></span>
+    <button id="next-top" aria-label="Next year">Next &rarr;</button>
+  </nav>
+
+  <div class="calendar" id="calendar" role="grid" aria-label="Year calendar with week numbers" aria-live="polite"></div>
+
+  <nav class="nav nav-bottom" aria-label="Year navigation">
+    <button id="prev-bottom" aria-label="Previous year">&larr; Prev</button>
+    <span class="year-title" id="year-bottom"></span>
+    <button id="next-bottom" aria-label="Next year">Next &rarr;</button>
+  </nav>
+</main>
+
+<footer>
+  <p>A simple calendar showing the week number for every week of the year. Navigate to any year or print it out. <a href="#" id="today-link">Jump to current year</a>.</p>
+</footer>
+
+<script>
+  const MONTH_NAMES = [
+    'January','February','March','April','May','June',
+    'July','August','September','October','November','December'
+  ];
+  const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  let currentYear;
+
+  function isoWeekNumber(date) {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  }
+
+  function renderCalendar(year) {
+    currentYear = year;
+    document.getElementById('year-top').textContent = year;
+    document.getElementById('year-bottom').textContent = year;
+    document.getElementById('title-year').textContent = year;
+    document.title = `Calendar Weeks ${year} — What Week Is It?`;
+    location.hash = '#' + year;
+
+    const today = new Date();
+    const banner = document.getElementById('current-week-banner');
+    if (year === today.getFullYear()) {
+      banner.textContent = `Today is week ${isoWeekNumber(today)} of ${year}.`;
+      banner.style.display = '';
+    } else {
+      banner.style.display = 'none';
+    }
+
+    const grid = document.getElementById('calendar');
+    grid.innerHTML = '';
+
+    const todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+
+    // Header row
+    const wkHeader = document.createElement('div');
+    wkHeader.className = 'cell header week-num';
+    wkHeader.textContent = 'Wk';
+    grid.appendChild(wkHeader);
+
+    for (const name of DAY_NAMES) {
+      const el = document.createElement('div');
+      el.className = 'cell header';
+      el.textContent = name;
+      grid.appendChild(el);
+    }
+
+    // Two empty header cells for month label columns
+    for (let i = 0; i < 2; i++) {
+      const el = document.createElement('div');
+      el.className = 'month-header';
+      grid.appendChild(el);
+    }
+
+    // Find first Sunday on or before Jan 1
+    const jan1 = new Date(year, 0, 1);
+    const start = new Date(jan1);
+    start.setDate(start.getDate() - start.getDay());
+
+    // Find last Saturday on or after Dec 31
+    const dec31 = new Date(year, 11, 31);
+    const end = new Date(dec31);
+    if (end.getDay() < 6) {
+      end.setDate(end.getDate() + (6 - end.getDay()));
+    }
+
+    // Track month row spans: monthSpans[0..11] = { first, last }
+    const monthSpans = Array.from({ length: 12 }, () => ({ first: Infinity, last: -Infinity }));
+
+    let gridRow = 2; // row 1 is header
+    const cursor = new Date(start);
+
+    while (cursor <= end) {
+      // Week number — use Thursday of this week
+      const thursday = new Date(cursor);
+      thursday.setDate(thursday.getDate() + 4); // cursor is Sunday, +4 = Thursday
+      const wk = isoWeekNumber(thursday);
+
+      const wkCell = document.createElement('div');
+      wkCell.className = 'cell week-num';
+      wkCell.textContent = wk;
+      wkCell.style.gridRow = gridRow;
+      wkCell.style.gridColumn = 1;
+      grid.appendChild(wkCell);
+
+      for (let d = 0; d < 7; d++) {
+        const day = new Date(cursor);
+        day.setDate(day.getDate() + d);
+
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.textContent = day.getDate();
+        cell.title = day.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        cell.style.gridRow = gridRow;
+        cell.style.gridColumn = d + 2;
+
+        const isOutside = day.getFullYear() !== year;
+        if (isOutside) {
+          cell.classList.add('outside');
+        }
+
+        const dayStr = `${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`;
+        if (dayStr === todayStr) {
+          cell.classList.add('today');
+        }
+
+        // Track month spans for days within the year
+        if (!isOutside) {
+          const m = day.getMonth();
+          if (gridRow < monthSpans[m].first) monthSpans[m].first = gridRow;
+          if (gridRow > monthSpans[m].last) monthSpans[m].last = gridRow;
+        }
+
+        grid.appendChild(cell);
+      }
+
+      // Advance cursor by 7 days
+      cursor.setDate(cursor.getDate() + 7);
+      gridRow++;
+    }
+
+    // Month labels
+    for (let m = 0; m < 12; m++) {
+      if (monthSpans[m].first === Infinity) continue;
+
+      const label = document.createElement('div');
+      label.className = 'month-label ' + (m % 2 === 0 ? 'odd' : 'even');
+      label.textContent = MONTH_NAMES[m];
+      label.style.gridRow = `${monthSpans[m].first} / ${monthSpans[m].last + 1}`;
+      grid.appendChild(label);
+    }
+  }
+
+  function navigate(delta) {
+    renderCalendar(currentYear + delta);
+  }
+
+  document.getElementById('prev-top').addEventListener('click', () => navigate(-1));
+  document.getElementById('prev-bottom').addEventListener('click', () => navigate(-1));
+  document.getElementById('next-top').addEventListener('click', () => navigate(1));
+  document.getElementById('next-bottom').addEventListener('click', () => navigate(1));
+  document.getElementById('year-top').addEventListener('click', () => renderCalendar(new Date().getFullYear()));
+  document.getElementById('year-bottom').addEventListener('click', () => renderCalendar(new Date().getFullYear()));
+  document.getElementById('today-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    renderCalendar(new Date().getFullYear());
+  });
+
+  window.addEventListener('hashchange', () => {
+    const hash = location.hash.replace('#', '');
+    const y = parseInt(hash, 10);
+    if (y && y !== currentYear) renderCalendar(y);
+  });
+
+  // Initial render
+  const hash = location.hash.replace('#', '');
+  const initYear = parseInt(hash, 10) || new Date().getFullYear();
+  renderCalendar(initYear);
+</script>
+
+</body>
+</html>
