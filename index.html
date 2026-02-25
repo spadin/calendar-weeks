@@ -165,6 +165,17 @@
     z-index: 2;
   }
 
+  .calendar .row-highlight {
+    background: #fff3cd;
+  }
+  .calendar .today.row-highlight {
+    background: #d4e5fc;
+  }
+  .calendar.dragging {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
   @media print {
     .nav, footer { display: none; }
     #current-week-banner { display: none; }
@@ -285,6 +296,7 @@
       const wkCell = document.createElement('div');
       wkCell.className = 'cell week-num';
       wkCell.textContent = wk;
+      wkCell.dataset.row = gridRow;
       wkCell.style.gridRow = gridRow;
       wkCell.style.gridColumn = 1;
       grid.appendChild(wkCell);
@@ -297,6 +309,7 @@
         cell.className = 'cell';
         cell.textContent = day.getDate();
         cell.title = day.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        cell.dataset.row = gridRow;
         cell.style.gridRow = gridRow;
         cell.style.gridColumn = d + 2;
 
@@ -356,6 +369,73 @@
     const hash = location.hash.replace('#', '');
     const y = parseInt(hash, 10);
     if (y && y !== currentYear) renderCalendar(y);
+  });
+
+  // Drag-to-highlight week rows
+  let dragStartRow = null;
+  let dragEndRow = null;
+  let highlightedRows = new Set();
+
+  function updateHighlight(fromRow, toRow) {
+    const grid = document.getElementById('calendar');
+    // Remove old highlights
+    for (const cell of grid.querySelectorAll('.row-highlight')) {
+      cell.classList.remove('row-highlight');
+    }
+    highlightedRows.clear();
+
+    const lo = Math.min(fromRow, toRow);
+    const hi = Math.max(fromRow, toRow);
+    for (let r = lo; r <= hi; r++) {
+      highlightedRows.add(r);
+      for (const cell of grid.querySelectorAll(`[data-row="${r}"]`)) {
+        cell.classList.add('row-highlight');
+      }
+    }
+  }
+
+  function clearHighlight() {
+    const grid = document.getElementById('calendar');
+    for (const cell of grid.querySelectorAll('.row-highlight')) {
+      cell.classList.remove('row-highlight');
+    }
+    highlightedRows.clear();
+  }
+
+  document.getElementById('calendar').addEventListener('mousedown', (e) => {
+    const cell = e.target.closest('.cell:not(.header)');
+    if (!cell || !cell.dataset.row) return;
+    e.preventDefault();
+
+    clearHighlight();
+    const grid = document.getElementById('calendar');
+    grid.classList.add('dragging');
+
+    dragStartRow = parseInt(cell.dataset.row, 10);
+    dragEndRow = dragStartRow;
+    updateHighlight(dragStartRow, dragEndRow);
+  });
+
+  document.getElementById('calendar').addEventListener('mouseover', (e) => {
+    if (dragStartRow === null) return;
+    const cell = e.target.closest('.cell:not(.header)');
+    if (!cell || !cell.dataset.row) return;
+
+    dragEndRow = parseInt(cell.dataset.row, 10);
+    updateHighlight(dragStartRow, dragEndRow);
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (dragStartRow === null) return;
+    dragStartRow = null;
+    dragEndRow = null;
+    document.getElementById('calendar').classList.remove('dragging');
+  });
+
+  document.addEventListener('mousedown', (e) => {
+    if (!e.target.closest('#calendar')) {
+      clearHighlight();
+    }
   });
 
   // Initial render
